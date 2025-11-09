@@ -1,0 +1,47 @@
+.ticket-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.ticket-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 8px 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+}
+
+.ticket-table {
+  background: #fff;
+  font-size: 10px;
+}
+
+.ticket-table .ant-table-thead > tr > th {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ticket-table .ant-table-cell {
+  font-size: 10px;
+}
+.ticket-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.ticket-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 8px 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+}
+

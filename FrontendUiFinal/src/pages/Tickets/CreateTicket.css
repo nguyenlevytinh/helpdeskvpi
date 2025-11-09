@@ -1,0 +1,15 @@
+.create-ticket-card {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.ant-form-item-label > label {
+  font-size: 10px !important;
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-btn {
+  font-size: 10px !important;
+}

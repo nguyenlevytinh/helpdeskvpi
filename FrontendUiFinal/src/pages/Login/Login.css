@@ -1,0 +1,28 @@
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f7f9fc;
+}
+
+.login-card {
+  width: 360px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 24px;
+  background: #fff;
+}
+
+.ant-form-item-label > label {
+  font-size: 10px;
+}
+
+.ant-input {
+  font-size: 10px;
+}
+
+.ant-btn {
+  font-size: 10px;
+}

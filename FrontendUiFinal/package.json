@@ -1,0 +1,29 @@
+{
+  "name": "FrontendUiFinal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rsbuild build",
+    "dev": "rsbuild dev --open",
+    "preview": "rsbuild preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "antd": "^5.28.0",
+    "axios": "^1.13.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.5",
+    "recharts": "^3.3.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.6.0",
+    "@rsbuild/plugin-react": "^1.4.1",
+    "@types/axios": "^0.9.36",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@types/react-router-dom": "^5.3.3",
+    "typescript": "^5.9.3"
+  }
+}
