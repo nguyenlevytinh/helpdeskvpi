@@ -3,10 +3,14 @@ import { Spin, message } from "antd";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import TicketInfo from "./TicketInfo";
+import TicketUpdateSection from "./TicketUpdateSection";
 import CommentSection from "./CommentSection";
 import FeedbackSection from "./FeedbackSection";
+import AgentNoteSection from "./AgentNoteSection";
+import TicketNavigationSection from "./TicketNavigationSection";
 import { TicketDetailDto, CommentDto } from "./TicketDetail.types";
 import "./TicketDetail.css";
+import { Can } from "../../context/Can";
 
 const TicketDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -40,7 +44,7 @@ const TicketDetailPage: React.FC = () => {
     fetchComments();
   }, [id]);
 
-  if (loading) {
+  if (loading || !ticket) {
     return (
       <div className="ticket-detail-loading">
         <Spin size="large" />
@@ -48,22 +52,61 @@ const TicketDetailPage: React.FC = () => {
     );
   }
 
-  if (!ticket) return null;
-
   return (
     <div className="ticket-detail-container">
       <div className="ticket-detail-left">
-        <TicketInfo ticket={ticket} />
-        {ticket.status === "Resolved" && (
+        {/* Điều hướng ticket - chỉ Support + Admin */}
+        <Can perform="navigation">
+          <div style={{ marginTop: 0 }}>
+            <TicketNavigationSection ticketId={ticket.id} status={ticket.status} agentNote={ticket.agentNote}  onUpdated={fetchTicket} />
+          </div>
+        </Can>
+
+        {/* Thông tin chung - ai cũng xem */}
+        <Can perform="info">
+          <TicketInfo ticket={ticket} />
+        </Can>
+
+        {/* Tiếp nhận & phân loại - Support + Admin */}
+        <Can perform="assignSection">
+          <div style={{ marginTop: 0 }}>
+            <TicketUpdateSection
+              ticketId={ticket.id}
+              defaultCategory={ticket.category}
+              defaultSubCategory={ticket.subCategory}
+              defaultDifficulty={ticket.difficulty}
+              defaultAssignedToEmail={ticket.assignedTo}
+              onUpdated={fetchTicket}
+            />
+          </div>
+        </Can>
+
+        {/* Agent Note - chỉ Support + Admin */}
+        <Can perform="agentNote">
+          <div style={{ marginTop: 0 }}>
+            <AgentNoteSection
+              ticketId={ticket.id}
+              defaultNote={ticket.agentNote}
+              onUpdated={fetchTicket}
+            />
+          </div>
+        </Can>
+
+        {/* Feedback - chỉ User được phép */}
+        <Can perform="feedback">
           <FeedbackSection ticketId={ticket.id} />
-        )}
+        </Can>
       </div>
+
+      {/* Comment - Admin + Support + User */}
       <div className="ticket-detail-right">
-        <CommentSection
-          ticketId={ticket.id}
-          comments={comments}
-          refresh={fetchComments}
-        />
+        <Can perform="comment">
+          <CommentSection
+            ticketId={ticket.id}
+            comments={comments}
+            refresh={fetchComments}
+          />
+        </Can>
       </div>
     </div>
   );

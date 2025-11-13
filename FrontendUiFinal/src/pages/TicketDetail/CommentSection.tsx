@@ -35,11 +35,6 @@ const CommentSection: React.FC<Props> = ({ ticketId, comments, refresh }) => {
   return (
     <Card
       title={`Bình luận (${comments.length})`}
-      extra={
-        <Button size="small" onClick={refresh}>
-          Làm mới
-        </Button>
-      }
       style={{ height: "100%" }}
     >
       <div className="comment-list">

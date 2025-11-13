@@ -44,5 +44,13 @@ namespace BackendApi.Controllers
             var data = await _dashboardService.GetFilteredTicketsAsync(filter);
             return Ok(data);
         }
+
+        [HttpGet("SLA")]
+        public async Task<IActionResult> GetSlaSummary([FromQuery] string period = "month")
+        {
+            var result = await _dashboardService.GetSlaSummaryByPeriodAsync(period);
+            return Ok(result);
+        }
+
     }
 }

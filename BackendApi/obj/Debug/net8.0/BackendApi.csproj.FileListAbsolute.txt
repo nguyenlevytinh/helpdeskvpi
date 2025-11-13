@@ -141,3 +141,4 @@ D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\refint\BackendApi.dll
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.pdb
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.genruntimeconfig.cache
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\ref\BackendApi.dll
+D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.sourcelink.json

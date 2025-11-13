@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   Checkbox,
+  Popconfirm,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axiosInstance from "../../api/axiosInstance";
@@ -23,7 +24,7 @@ const CreateTicketPage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
-  const [isProxy, setIsProxy] = useState(false)
+  const [isProxy, setIsProxy] = useState(false);
   const navigate = useNavigate();
 
   const handleUploadChange = ({ fileList }: any) => {
@@ -58,11 +59,15 @@ const CreateTicketPage: React.FC = () => {
       };
 
       await axiosInstance.post("/api/Ticket/Create", payload);
+
+      // Thông báo thành công
       message.success("Tạo ticket thành công!");
       navigate("/tickets");
     } catch (err) {
       console.error(err);
-      message.error("Không thể tạo ticket!");
+
+      // Thông báo thất bại
+      message.error("Không thể tạo ticket! Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -81,9 +86,9 @@ const CreateTicketPage: React.FC = () => {
         style={{ fontSize: 10 }}
       >
         <Space size={0} direction="vertical" style={{ width: "100%" }}>
-          {/* --- Hàng 1: Tiêu đề + Priority --- */}
-          <Row gutter={[6,0]}>
-            <Col span={16}>
+          {/* --- Hàng 1: Tiêu đề --- */}
+          <Row gutter={[6, 0]}>
+            <Col span={24}>
               <Form.Item
                 label="Tiêu đề"
                 name="Title"
@@ -92,29 +97,16 @@ const CreateTicketPage: React.FC = () => {
                 <Input placeholder="Nhập tiêu đề ticket..." />
               </Form.Item>
             </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Mức độ ưu tiên"
-                name="Priority"
-                rules={[{ required: true, message: "Chọn mức độ ưu tiên" }]}
-              >
-                <Select
-                  placeholder="Chọn Priority"
-                  options={[
-                    { value: "Thấp", label: "Thấp" },
-                    { value: "Trung bình", label: "Trung bình" },
-                    { value: "Cao", label: "Cao" },
-                    { value: "Khẩn cấp", label: "Khẩn cấp" },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
           </Row>
 
           {/* --- Hàng 2: Checkbox “Tạo hộ” + Email --- */}
-          <Row gutter={[6,0]} align="middle">
+          <Row gutter={[6, 0]} align="middle">
             <Col span={3}>
-              <Checkbox checked={isProxy} onChange={(e) => setIsProxy(e.target.checked)} style={{fontSize:10, marginLeft:10, whiteSpace:"nowrap"}}>
+              <Checkbox
+                checked={isProxy}
+                onChange={(e) => setIsProxy(e.target.checked)}
+                style={{ fontSize: 10, marginLeft: 10, whiteSpace: "nowrap" }}
+              >
                 Tạo hộ
               </Checkbox>
             </Col>
@@ -124,13 +116,18 @@ const CreateTicketPage: React.FC = () => {
                 name="RequestedForEmail"
                 rules={
                   isProxy
-                    ? [{ required: true, message: "Nhập email người được tạo hộ" }]
+                    ? [
+                        {
+                          required: true,
+                          message: "Nhập email người được tạo hộ",
+                        },
+                      ]
                     : []
                 }
               >
                 <Input
                   placeholder="VD: colleague.vpi@vanphu.vn"
-                  disabled={!isProxy} 
+                  disabled={!isProxy}
                 />
               </Form.Item>
             </Col>
@@ -161,9 +158,14 @@ const CreateTicketPage: React.FC = () => {
           {/* --- Hàng 5: Nút hành động --- */}
           <Form.Item style={{ textAlign: "right" }}>
             <Space>
-              <Button onClick={handleCancel} disabled={loading}>
-                Hủy
-              </Button>
+              <Popconfirm
+                title="Bạn có chắc chắn muốn hủy không?"
+                onConfirm={handleCancel}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button disabled={loading}>Hủy</Button>
+              </Popconfirm>
               <Button type="primary" htmlType="submit" loading={loading}>
                 Tạo Ticket
               </Button>

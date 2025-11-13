@@ -34,6 +34,7 @@ namespace BackendApi.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? AcceptedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
 
         public string? Priority { get; set; }
         public string? Difficulty { get; set; }

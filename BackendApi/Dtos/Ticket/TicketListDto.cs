@@ -6,7 +6,7 @@ namespace BackendApi.Dtos.Ticket
         public string Title { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public string? Difficulty { get; set; }
+        public string? Priority { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

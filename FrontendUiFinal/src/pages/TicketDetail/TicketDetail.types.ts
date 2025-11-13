@@ -10,8 +10,10 @@ export interface TicketDetailDto {
   createdAt: string;
   createdBy: string;
   requestedFor: string;
+  department?: string;
   assignedTo?: string;
-  attachments: { id: number; base64: string }[];
+  attachments: string[];
+  agentNote?: string;
 }
 
 export interface CommentDto {

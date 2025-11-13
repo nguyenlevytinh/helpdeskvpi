@@ -42,11 +42,18 @@ namespace BackendApi.Controllers
         }
 
         [HttpPatch("Status/{id}")]
-        public async Task<IActionResult> ChangeStatus(int id, [FromQuery] string status)
+        public async Task<IActionResult> ChangeStatus(int id, [FromBody] TicketPatchDto dto)
         {
-            var success = await _ticketService.ChangeStatusAsync(id, status);
+            var success = await _ticketService.ChangeStatusAsync(id, dto);
             if (!success) return NotFound("Ticket not found");
             return Ok("Status updated");
+        }
+        [HttpPatch("AgentNote/{id}")]
+        public async Task<IActionResult> UpdateAgentNote(int id, [FromBody] AgentNoteDto dto)
+        {
+            var success = await _ticketService.UpdateAgentNoteAsync(id, dto);
+            if (!success) return NotFound("Ticket not found");
+            return Ok("Agent note updated");
         }
 
         [HttpPost("Feedback/{id}")]

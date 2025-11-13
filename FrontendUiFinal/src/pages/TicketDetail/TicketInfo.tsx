@@ -1,91 +1,162 @@
 import React from "react";
-import { Card, Descriptions, Image, Space, Tag } from "antd";
+import { Card, Image, Space, Tag } from "antd";
 import { TicketDetailDto } from "./TicketDetail.types";
+import { TicketStatus, TicketStatusColorMap } from "../../constants/ticketStatus";
 
 interface Props {
   ticket: TicketDetailDto;
 }
 
-const TicketInfo: React.FC<Props> = ({ ticket }) => (
-  <>
-    <Card title={`Ticket ${ticket.id} - ${ticket.title}`}>
-      <Descriptions
-        column={1}
-        bordered
-        size="small"
-        labelStyle={{ width: "30%", fontSize: 10 }}
-        contentStyle={{ fontSize: 10 }}
-      >
-        <Descriptions.Item label="Mô tả">{ticket.description}</Descriptions.Item>
-        <Descriptions.Item label="Danh mục">{ticket.category}</Descriptions.Item>
-        {ticket.subCategory && (
-          <Descriptions.Item label="Phân nhóm">{ticket.subCategory}</Descriptions.Item>
-        )}
-        <Descriptions.Item label="Người tạo">{ticket.createdBy}</Descriptions.Item>
-        <Descriptions.Item label="Yêu cầu cho">{ticket.requestedFor}</Descriptions.Item>
-        <Descriptions.Item label="Gán cho">
-          {ticket.assignedTo || "-"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Độ ưu tiên">
-          <Tag
-            color={
-              ticket.priority === "High"
-                ? "red"
-                : ticket.priority === "Medium"
-                ? "orange"
-                : "blue"
-            }
-          >
-            {ticket.priority}
-          </Tag>
-        </Descriptions.Item>
-        <Descriptions.Item label="Độ khó">
-          {ticket.difficulty || "-"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Trạng thái">
-          <Tag
-            color={
-              ticket.status === "Open"
-                ? "blue"
-                : ticket.status === "Resolved"
-                ? "green"
-                : ticket.status === "Rejected"
-                ? "red"
-                : "default"
-            }
-          >
-            {ticket.status}
-          </Tag>
-        </Descriptions.Item>
-        <Descriptions.Item label="Ngày tạo">
-          {new Date(ticket.createdAt).toLocaleString("vi-VN", {
-            dateStyle: "short",
-            timeStyle: "short",
-            hour12: false,
-          })}
-        </Descriptions.Item>
-      </Descriptions>
-    </Card>
+const TicketInfo: React.FC<Props> = ({ ticket }) => {
+  // Lấy label tiếng Việt theo status code
+  const viStatus = TicketStatus[ticket.status as keyof typeof TicketStatus] || ticket.status;
 
-    <Card title="Ảnh đính kèm" style={{ marginTop: 12 }}>
-      {ticket.attachments?.length ? (
-        <Image.PreviewGroup>
-          <Space wrap>
-            {ticket.attachments.map((a) => (
-              <Image
-                key={a.id}
-                width={120}
-                src={a.base64}
-                style={{ border: "1px solid #f0f0f0", borderRadius: 4 }}
-              />
-            ))}
-          </Space>
-        </Image.PreviewGroup>
-      ) : (
-        <p style={{ fontSize: 10, color: "#888" }}>Không có ảnh đính kèm.</p>
-      )}
+  // Lấy config màu theo label tiếng Việt
+  const statusCfg = TicketStatusColorMap[viStatus as keyof typeof TicketStatusColorMap] || {
+    bg: "#f0f0f0",
+    text: "#000",
+  };
+
+  return (
+    <Card
+      title={
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <span>
+            Ticket {ticket.id} - {ticket.title}
+          </span>
+          <Tag
+            style={{
+              backgroundColor: statusCfg.bg,
+              color: statusCfg.text,
+              border: "none",
+              fontSize: 10,
+              padding: "2px 8px",
+              borderRadius: 4,
+            }}
+          >
+            {viStatus}
+          </Tag>
+        </div>
+      }
+    >
+      <div
+        style={{
+          border: "1px solid #f0f0f0",
+          borderRadius: 8,
+          padding: 12,
+          background: "#fafafa",
+          fontSize: 10,
+        }}
+      >
+        {/* --- Description --- */}
+        <div style={{ marginBottom: 12 }}>
+          <strong>Nội dung yêu cầu:</strong>
+          <div style={{ marginTop: 4, whiteSpace: "pre-line" }}>{ticket.description}</div>
+
+          {ticket.attachments?.length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              <Image.PreviewGroup>
+                <Space wrap>
+                  {ticket.attachments.map((base64, index) => (
+                    <Image
+                      key={index}
+                      width={100}
+                      src={base64}
+                      style={{
+                        borderRadius: 6,
+                        border: "1px solid #eee",
+                      }}
+                    />
+                  ))}
+                </Space>
+              </Image.PreviewGroup>
+            </div>
+          )}
+
+        </div>
+
+        {/* --- Priority & Department --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 6,
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <strong>Mức độ ưu tiên:</strong>{" "}
+              {ticket.priority}
+          </div>
+          <div style={{ flex: 1 }}>
+            <strong>Đơn vị gửi:</strong> {ticket.department || "-"}
+          </div>
+        </div>
+
+        {/* --- CreatedAt & RequestedFor --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 6,
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <strong>Ngày tạo:</strong>{" "}
+            {new Date(ticket.createdAt).toLocaleString("vi-VN", {
+              dateStyle: "short",
+              timeStyle: "short",
+              hour12: false,
+            })}
+          </div>
+          <div style={{ flex: 1 }}>
+            <strong>Người yêu cầu:</strong> {ticket.requestedFor}
+          </div>
+        </div>
+
+        {/* --- Category & Subcategory --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 6,
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <strong>Phân nhóm:</strong> {ticket.category}
+          </div>
+          <div style={{ flex: 1 }}>
+            <strong>Chi tiết loại yêu cầu:</strong> {ticket.subCategory || "-"}
+          </div>
+        </div>
+
+        {/* --- Difficulty & AssignedTo --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <strong>Độ khó:</strong> {ticket.difficulty || "-"}
+          </div>
+          <div style={{ flex: 1 }}>
+            <strong>Người xử lý:</strong> {ticket.assignedTo || "-"}
+          </div>
+        </div>
+      </div>
     </Card>
-  </>
-);
+  );
+};
 
 export default TicketInfo;

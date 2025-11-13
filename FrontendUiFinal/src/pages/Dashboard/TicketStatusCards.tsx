@@ -1,34 +1,92 @@
 import React from "react";
 import { Row, Col, Card } from "antd";
+import {
+  ClockCircleOutlined,
+  SyncOutlined,
+  ToolOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
+import { TicketStatusColorMap, TicketStatus } from "../../constants/ticketStatus";
 
 interface Props {
   data: { status: string; count: number }[];
 }
 
-const colorMap: Record<string, string> = {
-  Open: "#1677ff",
-  Resolved: "#52c41a",
-  Rejected: "#ff4d4f",
-  Accepted: "#faad14",
+const orderedStatuses = [
+  TicketStatus.Open,        // "Chờ tiếp nhận"
+  TicketStatus.InProgress,  // "Đang xử lý"
+  TicketStatus.Resolved,    // "Đã xử lý"
+  TicketStatus.Completed,   // "Hoàn thành"
+  TicketStatus.Rejected,    // "Từ chối"
+];
+
+// Icon map tương ứng từng trạng thái
+const statusIconMap: Record<string, React.ReactNode> = {
+  [TicketStatus.Open]: <ClockCircleOutlined style={{ fontSize: 22 }} />,
+  [TicketStatus.InProgress]: <SyncOutlined style={{ fontSize: 22}} />,
+  [TicketStatus.Resolved]: <ToolOutlined style={{ fontSize: 22 }} />,
+  [TicketStatus.Completed]: <CheckCircleOutlined style={{ fontSize: 22 }} />,
+  [TicketStatus.Rejected]: <CloseCircleOutlined style={{ fontSize: 22 }} />,
 };
 
-const TicketStatusCards: React.FC<Props> = ({ data }) => (
-  <Row gutter={12}>
-    {data.map((item) => (
-      <Col key={item.status} span={6}>
-        <Card
-          style={{
-            borderLeft: `4px solid ${colorMap[item.status] || "#999"}`,
-            textAlign: "center",
-            fontSize: 10,
-          }}
-        >
-          <div style={{ color: "#888" }}>{item.status}</div>
-          <div style={{ fontSize: 20, fontWeight: 600 }}>{item.count}</div>
-        </Card>
-      </Col>
-    ))}
-  </Row>
-);
+const TicketStatusCards: React.FC<Props> = ({ data }) => {
+  const countMap = Object.fromEntries(data.map((d) => [d.status, d.count]));
+
+  return (
+    <Row gutter={[12, 12]} wrap>
+      {orderedStatuses.map((status) => {
+        const colors = TicketStatusColorMap[status];
+        const count = countMap[status] ?? 0;
+        const icon = statusIconMap[status];
+
+        return (
+          <Col
+            key={status}
+            flex="1 1 20%" // chia đều 5 phần
+            style={{ minWidth: 160 }}
+          >
+            <Card
+              hoverable
+              style={{
+                borderLeft: `6px solid ${colors.bg}`,
+                textAlign: "center",
+                backgroundColor: "#fff",
+                borderRadius: "10px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              }}
+              bodyStyle={{ padding: "12px 8px" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 6,
+                  color: colors.text,
+                  fontWeight: 500,
+                  fontSize: "12px",
+                  marginBottom: "4px",
+                }}
+              >
+                {icon}
+                {status}
+              </div>
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 600,
+                  color: "#111",
+                }}
+              >
+                {count}
+              </div>
+            </Card>
+          </Col>
+        );
+      })}
+    </Row>
+  );
+};
 
 export default TicketStatusCards;

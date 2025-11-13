@@ -7,6 +7,7 @@ import TicketByCategoryChart from "./TicketByCategoryChart";
 import TicketTable from "./TicketTable";
 import axiosInstance from "../../api/axiosInstance";
 import "./Dashboard.css";
+import SlaSummarySection from "./SlaSummarySection";
 
 const DashboardPage: React.FC = () => {
   const [filters, setFilters] = useState<DashboardFilterValues>({
@@ -56,21 +57,32 @@ const DashboardPage: React.FC = () => {
         <>
           <TicketStatusCards data={statusData} />
           <Row gutter={12} style={{ marginTop: 12 }}>
-            <Col span={16}>
-              <Card title="Ticket theo tháng">
+            <Col span={14}>
+              <Card title="Tickets theo tháng">
                 <TicketByMonthChart data={monthData} />
               </Card>
             </Col>
-            <Col span={8}>
+            <Col span={10}>
               <Card title="Tỷ lệ theo danh mục">
                 <TicketByCategoryChart data={categoryData} />
               </Card>
             </Col>
           </Row>
 
-          <Card title="Danh sách Ticket (lọc theo bộ lọc trên)" style={{ marginTop: 12 }}>
-            <TicketTable filters={filters} />
-          </Card>
+          <Row gutter={12} style={{ marginTop: 12 }}>
+            <Col span={14}>
+              <Card title="Yêu cầu gần đây">
+                <TicketTable filters={filters} />
+              </Card>
+            </Col>
+            <Col span={10}>
+              <Card title="Tiêu chuẩn dịch vụ SLA">
+                <div style={{ marginTop: 16 }}>
+                  <SlaSummarySection />
+                </div>
+              </Card>
+            </Col>
+          </Row>
         </>
       )}
     </div>

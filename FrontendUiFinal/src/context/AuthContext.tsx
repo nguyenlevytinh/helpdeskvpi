@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 
 export interface UserInfo {
@@ -20,45 +27,86 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const navigate = useNavigate();
+
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(
-    localStorage.getItem("accessToken")
-  );
-  const [refreshToken, setRefreshToken] = useState<string | null>(
-    localStorage.getItem("refreshToken")
-  );
 
-  // Gọi API /api/Auth/Me khi có access token
+  // Đánh dấu đã load từ localStorage xong chưa
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // -----------------------------------------------------------------------
+  // STEP 1: Load token từ localStorage ngay từ lần mount đầu tiên
+  // -----------------------------------------------------------------------
   useEffect(() => {
-    if (accessToken) {
-      axiosInstance
-        .get("/api/Auth/Me")
-        .then((res) => setUser(res.data as UserInfo))
-        .catch(() => logout());
+    const at = localStorage.getItem("accessToken");
+    const rt = localStorage.getItem("refreshToken");
+
+    if (at) {
+      setAccessToken(at);
+      axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + at;
     }
-  }, [accessToken]);
+    if (rt) setRefreshToken(rt);
 
-  interface LoginResponse {
-    accessToken: string;
-    refreshToken: string;
-  }
+    setIsInitialized(true);
+  }, []);
 
-  const login = async (email: string) => {
+  // -----------------------------------------------------------------------
+  // STEP 2: Nếu đã init mà không có accessToken → Redirect về login
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    if (!accessToken) {
+      if (window.location.pathname !== "/login") {
+        navigate("/login");
+      }
+    }
+  }, [isInitialized, accessToken, navigate]);
+
+  // -----------------------------------------------------------------------
+  // STEP 3: Load thông tin user khi accessToken thay đổi
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (!accessToken) return;
+
+    axiosInstance
+      .get("/api/Auth/Me")
+      .then((res) => setUser(res.data as any))
+      .catch((err) => {
+        console.warn("Lỗi gọi /Me, giữ token nhưng user=null:", err);
+      });
+  }, [isInitialized, accessToken]);
+
+  // -----------------------------------------------------------------------
+  // STEP 4: Login
+  // -----------------------------------------------------------------------
+  const login = async (email: string): Promise<boolean> => {
     try {
-      const res = await axiosInstance.post<LoginResponse>("/api/Auth/Login", { email });
-      const { accessToken, refreshToken } = res.data;
+      const res = await axiosInstance.post("/api/Auth/Login", { email });
 
+      const { accessToken, refreshToken } = res.data as { accessToken: string; refreshToken: string };
+
+      // Lưu state
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
 
+      // Lưu localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      const me = await axiosInstance.get("/api/Auth/Me", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      setUser(me.data as UserInfo);
+      // Set header mặc định
+      axiosInstance.defaults.headers.common["Authorization"] =
+        "Bearer " + accessToken;
+
+      // Load user info
+      const meRes = await axiosInstance.get("/api/Auth/Me");
+      setUser(meRes.data as any);
 
       return true;
     } catch (err) {
@@ -67,23 +115,87 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // -----------------------------------------------------------------------
+  // STEP 5: Logout
+  // -----------------------------------------------------------------------
   const logout = () => {
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
+
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+
+    navigate("/login");
   };
 
+  // -----------------------------------------------------------------------
+  // STEP 6: Refresh token
+  // -----------------------------------------------------------------------
+  const refreshAccessToken = async () => {
+    try {
+      if (!refreshToken) throw new Error("Missing refresh token");
+
+      const res = await axiosInstance.post("/api/Auth/Refresh", {
+        refreshToken,
+      });
+
+      const newAccessToken = (res.data as any).accessToken;
+
+      setAccessToken(newAccessToken);
+      localStorage.setItem("accessToken", newAccessToken);
+
+      axiosInstance.defaults.headers.common["Authorization"] =
+        "Bearer " + newAccessToken;
+
+      return newAccessToken;
+    } catch (err) {
+      console.error("Refresh token failed:", err);
+      logout();
+      return null;
+    }
+  };
+
+  // -----------------------------------------------------------------------
+  // STEP 7: Axios response interceptor → Auto refresh token khi 401
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    const interceptor = axiosInstance.interceptors.response.use(
+      (res) => res,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          const newToken = await refreshAccessToken();
+          if (newToken) {
+            originalRequest.headers["Authorization"] = "Bearer " + newToken;
+            return axiosInstance(originalRequest);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axiosInstance.interceptors.response.eject(interceptor);
+  }, [refreshToken]);
+
+  // -----------------------------------------------------------------------
+
   return (
-    <AuthContext.Provider value={{ user, accessToken, refreshToken, login, logout, setUser }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, refreshToken, login, logout, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
+// Hook tiện dụng
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
 };

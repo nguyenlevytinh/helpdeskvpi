@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Row, Col, Select, Input, DatePicker, Button, Space, Card } from "antd";
+import { Row, Col, Select, DatePicker, Button, Card } from "antd";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { departmentOptions } from "../../constants/departmentOptions";
+import { TicketCategoryMap } from "../../constants/ticketCategory";
 
 export interface DashboardFilterValues {
   Department?: string;
@@ -26,44 +28,30 @@ const DashboardFilters: React.FC<Props> = ({ onSearch, onRefresh }) => {
   };
 
   return (
-    <Card className="dashboard-filters">
-      <Row gutter={12}>
-        <Col span={6}>
+    <Card className="dashboard-filters" style={{padding: "0px"}}>
+      <Row gutter={12} align="middle">
+        <Col flex="auto">
           <Select
             placeholder="Phòng ban"
             allowClear
             onChange={(v) => setFormValues({ ...formValues, Department: v })}
-            style={{ width: "100%", fontSize: 10 }}
-            options={[
-              { value: "IT Support", label: "IT Support" },
-              { value: "Sales", label: "Sales" },
-              { value: "HR", label: "HR" },
-            ]}
+            style={{ width: "100%" }}
+            options={departmentOptions}
           />
         </Col>
-        <Col span={6}>
+        <Col flex="auto">
           <Select
-            placeholder="Danh mục"
+            placeholder="Loại yêu cầu"
             allowClear
             onChange={(v) => setFormValues({ ...formValues, Category: v })}
-            style={{ width: "100%", fontSize: 10 }}
-            options={[
-              { value: "Network", label: "Network" },
-              { value: "Hardware", label: "Hardware" },
-              { value: "Software", label: "Software" },
-            ]}
+            style={{ width: "100%" }}
+            options={Object.entries(TicketCategoryMap).map(([key, values]) => ({
+              label: key,
+              value: values.join(","),
+            }))}
           />
         </Col>
-        <Col span={6}>
-          <Input
-            placeholder="Email"
-            onChange={(e) =>
-              setFormValues({ ...formValues, Email: e.target.value })
-            }
-            style={{ fontSize: 10 }}
-          />
-        </Col>
-        <Col span={6}>
+        <Col flex="auto">
           <DatePicker.RangePicker
             onChange={(v) =>
               setFormValues({
@@ -75,21 +63,22 @@ const DashboardFilters: React.FC<Props> = ({ onSearch, onRefresh }) => {
             style={{ width: "100%" }}
           />
         </Col>
+        <Col>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            size="small"
+            onClick={handleSearch}
+          >
+            Lọc
+          </Button>
+        </Col>
+        <Col>
+          <Button icon={<ReloadOutlined />} size="small" onClick={onRefresh}>
+            Xóa lọc
+          </Button>
+        </Col>
       </Row>
-
-      <Space style={{ marginTop: 8 }}>
-        <Button
-          type="primary"
-          icon={<SearchOutlined />}
-          size="small"
-          onClick={handleSearch}
-        >
-          Tìm kiếm
-        </Button>
-        <Button icon={<ReloadOutlined />} size="small" onClick={onRefresh}>
-          Làm mới
-        </Button>
-      </Space>
     </Card>
   );
 };

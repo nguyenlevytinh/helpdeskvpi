@@ -3,13 +3,16 @@ import { Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
 import { TicketStatusColorMap } from "../../constants/ticketStatus";
+import {
+  TicketPriorityColorMap,
+} from "../../constants/priorityColor";
 
 export interface TicketListDto {
   id: number;
   title: string;
   category: string;
   status: string;
-  difficulty: string;
+  priority: string;
   createdAt: string;
 }
 
@@ -88,10 +91,33 @@ const TicketsTable: React.FC<Props> = ({
       },
     },
     {
-      title: "Mức độ",
-      dataIndex: "difficulty",
+      title: "Mức độ ưu tiên",
+      dataIndex: "priority",
       align: "center",
-      render: (text) => text || <i style={{ color: "#9ca3af" }}>–</i>,
+      render: (priority: string) => {
+        const colors =
+          TicketPriorityColorMap[priority as keyof typeof TicketPriorityColorMap] ||
+          { bg: "#F3F4F6", text: "#111827" };
+
+        return (
+          <Tag
+            style={{
+              backgroundColor: colors.bg,
+              color: colors.text,
+              border: "none",
+              borderRadius: "12px",
+              padding: "2px 10px",
+              fontWeight: 500,
+              fontSize: "10px",
+              textAlign: "center",
+              minWidth: 80,
+              display: "inline-block",
+            }}
+          >
+            {priority || "–"}
+          </Tag>
+        );
+      },
     },
     {
       title: "Ngày tạo",
@@ -110,7 +136,9 @@ const TicketsTable: React.FC<Props> = ({
     <Table<TicketListDto>
       rowKey="id"
       columns={columns}
-      dataSource={data}
+      dataSource={[...data].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )}
       loading={loading}
       pagination={{
         current: pageIndex,

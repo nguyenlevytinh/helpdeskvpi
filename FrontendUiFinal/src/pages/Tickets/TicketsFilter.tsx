@@ -2,14 +2,21 @@ import React from "react";
 import { Input, Select, Button, Space } from "antd";
 import { SearchOutlined, ReloadOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { TicketStatus } from "../../constants/ticketStatus";
+import { TicketPriority } from "../../constants/priorityColor";
+
+const ticketStatusOptions = Object.entries(TicketStatus).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 interface Props {
   search: string;
   status?: string;
-  difficulty?: string;
+  priority?: string;
   onSearchChange: (val: string) => void;
   onStatusChange: (val?: string) => void;
-  onDifficultyChange: (val?: string) => void;
+  onPriorityChange: (val?: string) => void;
   onSearchClick: () => void;
   onReset: () => void;
 }
@@ -17,10 +24,10 @@ interface Props {
 const TicketsFilter: React.FC<Props> = ({
   search,
   status,
-  difficulty,
+  priority,
   onSearchChange,
   onStatusChange,
-  onDifficultyChange,
+  onPriorityChange,
   onSearchClick,
   onReset,
 }) => {
@@ -34,33 +41,26 @@ const TicketsFilter: React.FC<Props> = ({
           prefix={<SearchOutlined />}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          style={{ width: 200, fontSize: 10 }}
+          style={{ width: 200, height: 31, fontSize: 10 }}
         />
         <Select
           placeholder="Trạng thái"
+          options={ticketStatusOptions}
           allowClear
           value={status}
           onChange={(v) => onStatusChange(v)}
           style={{ width: 140, fontSize: 10 }}
-          options={[
-            { value: "Open", label: "Chờ tiếp nhận" },
-            { value: "InProgress", label: "Đang xử lý" },
-            { value: "Resolved", label: "Đã xử lý" },
-            { value: "Rejected", label: "Từ chối" },
-            { value: "Completed", label: "Hoàn thành" },
-          ]}
         />
         <Select
-          placeholder="Độ khó"
+          placeholder="Mức độ ưu tiên"
           allowClear
-          value={difficulty}
-          onChange={(v) => onDifficultyChange(v)}
+          value={priority}
+          onChange={(v) => onPriorityChange(v)}
           style={{ width: 120, fontSize: 10 }}
-          options={[
-            { value: "Low", label: "Thấp" },
-            { value: "Medium", label: "Trung bình" },
-            { value: "High", label: "Cao" },
-          ]}
+          options={Object.entries(TicketPriority).map(([value, label]) => ({
+            value,
+            label,
+          }))}
         />
         <Button
           type="primary"
@@ -79,10 +79,9 @@ const TicketsFilter: React.FC<Props> = ({
         type="primary"
         icon={<PlusOutlined />}
         onClick={() => navigate("/tickets/create")}
-        size="small"
-        style={{ fontSize: 10 }}
+        size="large"
       >
-        Tạo yêu cầu mới
+        <span style={{fontWeight: "bold", fontSize: 13}}>Tạo yêu cầu mới</span>
       </Button>
     </div>
   );
