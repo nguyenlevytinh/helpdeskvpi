@@ -14,7 +14,18 @@ namespace BackendApi.Services
             _context = context;
         }
 
-        // Tạo ticket mới
+        // Role filtering logic
+        private IQueryable<Ticket> ApplyRoleFilter(IQueryable<Ticket> query, int userId, string role)
+        {
+            return role switch
+            {
+                "Admin" => query,
+                "Helpdesk" => query.Where(t => t.AssignedTo == userId),
+                _ => query.Where(t => t.CreatedBy == userId),
+            };
+        }
+
+        // Create ticket
         public async Task<TicketDetailDto?> CreateTicketAsync(TicketCreateDto dto, string createdByEmail)
         {
             var createdBy = await _context.Users.FirstOrDefaultAsync(u => u.Email == createdByEmail);
@@ -36,7 +47,7 @@ namespace BackendApi.Services
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
 
-            // Lưu attachments
+            // Save attachments
             if (dto.AttachmentsBase64 != null && dto.AttachmentsBase64.Any())
             {
                 foreach (var base64 in dto.AttachmentsBase64)
@@ -53,7 +64,7 @@ namespace BackendApi.Services
             return await GetTicketDetailAsync(ticket.Id);
         }
 
-        // Cập nhật ticket
+        // Update ticket
         public async Task<bool> UpdateTicketAsync(int id, TicketUpdateDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -79,7 +90,7 @@ namespace BackendApi.Services
             return true;
         }
 
-        // Đổi trạng thái ticket
+        // Change status
         public async Task<bool> ChangeStatusAsync(int id, TicketPatchDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -95,7 +106,7 @@ namespace BackendApi.Services
             return true;
         }
 
-        // Gửi phản hồi
+        // Feedback
         public async Task<bool> GiveFeedbackAsync(int id, TicketFeedbackDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -108,7 +119,7 @@ namespace BackendApi.Services
             return true;
         }
 
-        // Cập nhật ghi chú của agent
+        // Update agent note
         public async Task<bool> UpdateAgentNoteAsync(int id, AgentNoteDto dto)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -120,32 +131,46 @@ namespace BackendApi.Services
             return true;
         }
 
-        // Lấy danh sách ticket (filter + search + pagination)
-        public async Task<(List<TicketListDto>, int)> GetTicketsAsync(TicketFilterDto filter)
+        // Get ticket list (search + filter + pagination + role filtering)
+        public async Task<(List<TicketListDto>, int)> GetTicketsAsync(
+            TicketFilterDto filter,
+            int userId,
+            string role)
         {
-            var query = _context.Tickets.AsQueryable();
+            var query = _context.Tickets
+                .Include(t => t.CreatedByUser)
+                .AsQueryable();
 
+            // Apply role permissions
+            query = ApplyRoleFilter(query, userId, role);
+
+            // Search by Title or Id
             if (!string.IsNullOrEmpty(filter.Title))
             {
                 query = query.Where(t =>
                     t.Title.ToLower().Contains(filter.Title.ToLower()) ||
-                    t.Id.ToString().Contains(filter.Title));
+                    t.Id.ToString().Contains(filter.Title)
+                );
             }
 
+            // Filter by status
             if (!string.IsNullOrEmpty(filter.Status))
             {
                 query = query.Where(t => t.Status == filter.Status);
             }
 
-            if (!string.IsNullOrEmpty(filter.Difficulty))
+            // Filter by priority
+            if (!string.IsNullOrEmpty(filter.Priority))
             {
-                query = query.Where(t => t.Difficulty == filter.Difficulty);
+                query = query.Where(t => t.Priority == filter.Priority);
             }
 
+            // Total records
             var totalCount = await query.CountAsync();
 
+            // Sort by CreatedAt (newest to oldest) and apply pagination
             var tickets = await query
-                .OrderByDescending(t => t.CreatedAt)
+                .OrderByDescending(t => t.CreatedAt) // Sort by CreatedAt descending
                 .Skip((filter.PageIndex - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .Select(t => new TicketListDto
@@ -155,14 +180,14 @@ namespace BackendApi.Services
                     Category = t.Category,
                     Status = t.Status,
                     Priority = t.Priority,
-                    CreatedAt = t.CreatedAt,
+                    CreatedAt = t.CreatedAt
                 })
                 .ToListAsync();
 
             return (tickets, totalCount);
         }
 
-        // Lấy chi tiết ticket
+        // Get ticket detail
         public async Task<TicketDetailDto?> GetTicketDetailAsync(int id)
         {
             var ticket = await _context.Tickets
@@ -196,7 +221,7 @@ namespace BackendApi.Services
                 Department = ticket.RequestedForUser?.Department,
                 CreatedAt = ticket.CreatedAt,
                 Attachments = attachments,
-                Rating = ticket.UserRating,
+                UserRating = ticket.UserRating,
                 Feedback = ticket.UserFeedback
             };
         }

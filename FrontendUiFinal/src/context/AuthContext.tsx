@@ -5,7 +5,6 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 
 export interface UserInfo {
@@ -20,6 +19,7 @@ interface AuthContextType {
   user: UserInfo | null;
   accessToken: string | null;
   refreshToken: string | null;
+  loadingUser: boolean; 
   login: (email: string) => Promise<boolean>;
   logout: () => void;
   setUser: React.Dispatch<React.SetStateAction<UserInfo | null>>;
@@ -30,17 +30,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const navigate = useNavigate();
-
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [user, setUser] = useState<UserInfo | null>(null);
 
-  // Đánh dấu đã load từ localStorage xong chưa
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true); 
 
   // -----------------------------------------------------------------------
-  // STEP 1: Load token từ localStorage ngay từ lần mount đầu tiên
+  // STEP 1: Load token từ localStorage, rồi fetch user
   // -----------------------------------------------------------------------
   useEffect(() => {
     const at = localStorage.getItem("accessToken");
@@ -52,59 +49,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
     if (rt) setRefreshToken(rt);
 
-    setIsInitialized(true);
+    // Nếu có accessToken thì gọi /Me
+    const loadUser = async () => {
+      if (!at) {
+        setLoadingUser(false);
+        return;
+      }
+
+      try {
+        const res = await axiosInstance.get("/api/Auth/Me");
+        setUser(res.data as any);
+      } catch (err) {
+        console.warn("Token expired hoặc lỗi /Me:", err);
+        setUser(null);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    loadUser();
   }, []);
 
   // -----------------------------------------------------------------------
-  // STEP 2: Nếu đã init mà không có accessToken → Redirect về login
-  // -----------------------------------------------------------------------
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    if (!accessToken) {
-      if (window.location.pathname !== "/login") {
-        navigate("/login");
-      }
-    }
-  }, [isInitialized, accessToken, navigate]);
-
-  // -----------------------------------------------------------------------
-  // STEP 3: Load thông tin user khi accessToken thay đổi
-  // -----------------------------------------------------------------------
-  useEffect(() => {
-    if (!isInitialized) return;
-    if (!accessToken) return;
-
-    axiosInstance
-      .get("/api/Auth/Me")
-      .then((res) => setUser(res.data as any))
-      .catch((err) => {
-        console.warn("Lỗi gọi /Me, giữ token nhưng user=null:", err);
-      });
-  }, [isInitialized, accessToken]);
-
-  // -----------------------------------------------------------------------
-  // STEP 4: Login
+  // STEP 2: Login
   // -----------------------------------------------------------------------
   const login = async (email: string): Promise<boolean> => {
     try {
-      const res = await axiosInstance.post("/api/Auth/Login", { email });
+      const res = await axiosInstance.post<{ accessToken: string; refreshToken: string }>("/api/Auth/Login", { email });
+      const { accessToken, refreshToken } = res.data;
 
-      const { accessToken, refreshToken } = res.data as { accessToken: string; refreshToken: string };
-
-      // Lưu state
+      // Save
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
-
-      // Lưu localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // Set header mặc định
       axiosInstance.defaults.headers.common["Authorization"] =
         "Bearer " + accessToken;
 
-      // Load user info
+      // Load user
       const meRes = await axiosInstance.get("/api/Auth/Me");
       setUser(meRes.data as any);
 
@@ -116,21 +99,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // -----------------------------------------------------------------------
-  // STEP 5: Logout
+  // STEP 3: Logout
   // -----------------------------------------------------------------------
   const logout = () => {
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
-
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-
-    navigate("/login");
   };
 
   // -----------------------------------------------------------------------
-  // STEP 6: Refresh token
+  // STEP 4: Refresh token logic
   // -----------------------------------------------------------------------
   const refreshAccessToken = async () => {
     try {
@@ -157,7 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // -----------------------------------------------------------------------
-  // STEP 7: Axios response interceptor → Auto refresh token khi 401
+  // STEP 5: Axios interceptor
   // -----------------------------------------------------------------------
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
@@ -182,18 +162,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     return () => axiosInstance.interceptors.response.eject(interceptor);
   }, [refreshToken]);
 
-  // -----------------------------------------------------------------------
-
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, refreshToken, login, logout, setUser }}
+      value={{ user, accessToken, refreshToken, loadingUser, login, logout, setUser }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook tiện dụng
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");

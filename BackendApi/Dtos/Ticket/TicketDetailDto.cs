@@ -18,7 +18,7 @@ namespace BackendApi.Dtos.Ticket
         public string? Department { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<string>? Attachments { get; set; }
-        public int ? Rating { get; set; }
+        public int ? UserRating { get; set; }
         public string? Feedback { get; set; }
     }
 }

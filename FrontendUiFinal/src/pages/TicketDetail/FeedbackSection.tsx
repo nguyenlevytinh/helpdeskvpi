@@ -7,6 +7,7 @@ interface Props {
   defaultRating?: number;
   defaultFeedback?: string;
   onUpdated?: () => void; // callback reload ticket sau khi gửi đánh giá
+  disabled?: boolean;
 }
 
 const FeedbackSection: React.FC<Props> = ({
@@ -14,31 +15,33 @@ const FeedbackSection: React.FC<Props> = ({
   defaultRating = 0,
   defaultFeedback = "",
   onUpdated,
+  disabled = false,  // ✔ FIXED: nhận đúng prop disable
 }) => {
   const [rating, setRating] = useState<number>(defaultRating);
   const [feedback, setFeedback] = useState(defaultFeedback);
   const [loading, setLoading] = useState(false);
   const [hasFeedback, setHasFeedback] = useState(defaultRating > 0);
 
-  // Đồng bộ lại khi ticket detail thay đổi (khi reload ticket)
   useEffect(() => {
     setRating(defaultRating);
     setFeedback(defaultFeedback);
     setHasFeedback(defaultRating > 0);
   }, [defaultRating, defaultFeedback]);
 
-  // Gửi đánh giá
   const handleSubmit = async () => {
     if (!rating) return message.warning("Vui lòng chọn số sao!");
+
     setLoading(true);
     try {
       await axiosInstance.post(`/api/Ticket/Feedback/${ticketId}`, {
         userRating: rating,
         userFeedback: feedback,
       });
+
       message.success("Cảm ơn bạn đã gửi đánh giá!");
       setHasFeedback(true);
-      if (onUpdated) onUpdated(); // reload lại ticket
+
+      if (onUpdated) onUpdated();
     } catch {
       message.error("Không thể gửi đánh giá!");
     } finally {
@@ -49,25 +52,10 @@ const FeedbackSection: React.FC<Props> = ({
   return (
     <Card
       title={
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <span>Đánh giá &amp; Phản hồi</span>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>Đánh giá & Phản hồi</span>
           {hasFeedback && (
-            <Tag
-              style={{
-                backgroundColor: "#dcfce7", // xanh nhạt
-                color: "#15803d", // xanh đậm
-                border: "none",
-                fontSize: 10,
-                padding: "2px 8px",
-              }}
-            >
+            <Tag style={{ backgroundColor: "#dcfce7", color: "#15803d", border: "none", fontSize: 10 }}>
               Đã đánh giá
             </Tag>
           )}
@@ -79,14 +67,14 @@ const FeedbackSection: React.FC<Props> = ({
         Đánh giá mức độ hài lòng:
       </div>
 
-      {/* Hiển thị sao (disable nếu đã đánh giá) */}
+      {/* Rate: disable nếu đã đánh giá hoặc ticket bị disable */}
       <Rate
         value={rating}
-        onChange={(val) => !hasFeedback && setRating(val)}
-        disabled={hasFeedback}
+        onChange={(val) => !hasFeedback && !disabled && setRating(val)}
+        disabled={hasFeedback || disabled}
       />
 
-      {/* Nếu chưa đánh giá → hiện form */}
+      {/* Chỉ hiện form khi chưa đánh giá */}
       {!hasFeedback && (
         <>
           <Input.TextArea
@@ -95,12 +83,15 @@ const FeedbackSection: React.FC<Props> = ({
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             style={{ marginTop: 8, fontSize: 10 }}
+            disabled={disabled}   // ✔ FIXED
           />
+
           <Button
             type="primary"
             onClick={handleSubmit}
             loading={loading}
-            style={{ marginTop: 8, fontSize: 10, textAlign: "right" }}
+            disabled={disabled}    // ✔ FIXED
+            style={{ marginTop: 8, fontSize: 10 }}
           >
             Gửi đánh giá
           </Button>
@@ -109,5 +100,4 @@ const FeedbackSection: React.FC<Props> = ({
     </Card>
   );
 };
-
 export default FeedbackSection;

@@ -94,7 +94,9 @@ const TicketDetailPage: React.FC = () => {
 
         {/* Feedback - chỉ User được phép */}
         <Can perform="feedback">
-          <FeedbackSection ticketId={ticket.id} />
+          <FeedbackSection ticketId={ticket.id} 
+            disabled={ticket.status !== "Đã xử lý"}
+          />
         </Can>
       </div>
 

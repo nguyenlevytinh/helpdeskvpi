@@ -14,7 +14,21 @@ namespace BackendApi.Services
             _context = context;
         }
 
-        // 🔹 Apply filter logic (reusable)
+        // ⭐ ROLE FILTER
+        private IQueryable<Models.Ticket> ApplyRoleFilter(
+            IQueryable<Models.Ticket> query,
+            int userId,
+            string role)
+        {
+            return role switch
+            {
+                "admin" => query,                                       // xem tất cả
+                "helpdesk" => query.Where(t => t.AssignedTo == userId), // xem ticket assign
+                _ => query.Where(t => t.CreatedBy == userId),           // user bình thường → xem của mình
+            };
+        }
+
+        // FILTER 
         private IQueryable<Models.Ticket> ApplyFilter(IQueryable<Models.Ticket> query, DashboardFilterDto filter)
         {
             if (!string.IsNullOrEmpty(filter.Department))
@@ -35,16 +49,21 @@ namespace BackendApi.Services
             return query;
         }
 
-        // 🟩 1. Đếm tổng số ticket theo Status
-        public async Task<List<TicketCountByStatusDto>> GetTicketCountByStatusAsync(DashboardFilterDto filter)
+        // ------------------------------------------------------------------------------------
+        //  1. Tổng ticket theo status
+        public async Task<List<TicketCountByStatusDto>> GetTicketCountByStatusAsync(
+            DashboardFilterDto filter,
+            int userId,
+            string role)
         {
             var query = _context.Tickets
                 .Include(t => t.CreatedByUser)
                 .AsQueryable();
 
+            query = ApplyRoleFilter(query, userId, role);
             query = ApplyFilter(query, filter);
 
-            var result = await query
+            return await query
                 .GroupBy(t => t.Status)
                 .Select(g => new TicketCountByStatusDto
                 {
@@ -52,20 +71,22 @@ namespace BackendApi.Services
                     Count = g.Count()
                 })
                 .ToListAsync();
-
-            return result;
         }
 
-        // 🟨 2. Số lượng ticket theo tháng (bar chart)
-        public async Task<List<TicketByMonthDto>> GetTicketByMonthAsync(DashboardFilterDto filter)
+        // ------------------------------------------------------------------------------------
+        //  2. Ticket theo tháng
+        public async Task<List<TicketByMonthDto>> GetTicketByMonthAsync(
+            DashboardFilterDto filter,
+            int userId,
+            string role)
         {
             var query = _context.Tickets
                 .Include(t => t.CreatedByUser)
                 .AsQueryable();
 
+            query = ApplyRoleFilter(query, userId, role);
             query = ApplyFilter(query, filter);
 
-            // ⚙️ GroupBy và Count trên SQL → format ở .NET
             var grouped = await query
                 .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
                 .Select(g => new
@@ -76,31 +97,34 @@ namespace BackendApi.Services
                 })
                 .ToListAsync();
 
-            var result = grouped
+            return grouped
                 .Select(g => new TicketByMonthDto
                 {
                     Month = $"{g.Year}-{g.Month:D2}",
                     Count = g.Count
                 })
-                .OrderBy(e => e.Month)
+                .OrderBy(x => x.Month)
                 .ToList();
-
-            return result;
         }
 
-        // 🟦 3. Cơ cấu % ticket theo Category (pie chart)
-        public async Task<List<TicketByCategoryDto>> GetTicketByCategoryAsync(DashboardFilterDto filter)
+        // ------------------------------------------------------------------------------------
+        //  3. Category pie chart
+        public async Task<List<TicketByCategoryDto>> GetTicketByCategoryAsync(
+            DashboardFilterDto filter,
+            int userId,
+            string role)
         {
             var query = _context.Tickets
                 .Include(t => t.CreatedByUser)
                 .AsQueryable();
 
+            query = ApplyRoleFilter(query, userId, role);
             query = ApplyFilter(query, filter);
 
             var total = await query.CountAsync();
             if (total == 0) return new List<TicketByCategoryDto>();
 
-            var result = await query
+            return await query
                 .GroupBy(t => t.Category)
                 .Select(g => new TicketByCategoryDto
                 {
@@ -110,20 +134,23 @@ namespace BackendApi.Services
                 })
                 .OrderByDescending(x => x.Count)
                 .ToListAsync();
-
-            return result;
         }
 
-        // 🟧 4. Danh sách ticket (table trong Dashboard)
-        public async Task<List<TicketListDto>> GetFilteredTicketsAsync(DashboardFilterDto filter)
+        // ------------------------------------------------------------------------------------
+        //  4. Danh sách ticket trong dashboard
+        public async Task<List<TicketListDto>> GetFilteredTicketsAsync(
+            DashboardFilterDto filter,
+            int userId,
+            string role)
         {
             var query = _context.Tickets
                 .Include(t => t.CreatedByUser)
                 .AsQueryable();
 
+            query = ApplyRoleFilter(query, userId, role);
             query = ApplyFilter(query, filter);
 
-            var tickets = await query
+            return await query
                 .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new TicketListDto
                 {
@@ -135,23 +162,26 @@ namespace BackendApi.Services
                     CreatedAt = t.CreatedAt
                 })
                 .ToListAsync();
-
-            return tickets;
         }
 
-        // 🟪 5. Tính SLA (ResponseRate, ProcessRate, SatisfactionRate)
-        public async Task<SlaSummaryDto> GetSlaSummaryAsync(DashboardFilterDto filter)
+        // ------------------------------------------------------------------------------------
+        //  5. SLA chung
+        public async Task<SlaSummaryDto> GetSlaSummaryAsync(
+            DashboardFilterDto filter,
+            int userId,
+            string role)
         {
             var query = _context.Tickets
                 .Include(t => t.CreatedByUser)
                 .AsQueryable();
 
+            query = ApplyRoleFilter(query, userId, role);
             query = ApplyFilter(query, filter);
             query = query.Where(t => t.Priority != null);
 
             var tickets = await query.ToListAsync();
             if (!tickets.Any())
-                return new SlaSummaryDto { ResponseRate = 0, ProcessRate = 0, SatisfactionRate = 0 };
+                return new SlaSummaryDto();
 
             int total = tickets.Count;
             int countResponseOK = 0;
@@ -160,8 +190,6 @@ namespace BackendApi.Services
 
             foreach (var t in tickets)
             {
-                if (t.CreatedAt == default) continue;
-
                 double? responseDuration = null;
                 double? processDuration = null;
 
@@ -176,10 +204,10 @@ namespace BackendApi.Services
 
                 switch (t.Priority)
                 {
-                    case "Thấp": responseStd = 0.25; processStd = 2; break;
-                    case "Trung bình": responseStd = 0.34; processStd = 3; break;
-                    case "Cao": responseStd = 0.42; processStd = 8; break;
-                    case "Khẩn cấp": responseStd = 0.5; processStd = 32; break;
+                    case "Thấp":        responseStd = 0.25; processStd = 2; break;
+                    case "Trung bình":  responseStd = 0.34; processStd = 3; break;
+                    case "Cao":         responseStd = 0.42; processStd = 8; break;
+                    case "Khẩn cấp":    responseStd = 0.50; processStd = 32; break;
                 }
 
                 if (responseDuration.HasValue && responseDuration <= responseStd)
@@ -192,51 +220,12 @@ namespace BackendApi.Services
                     totalRating += t.UserRating.Value;
             }
 
-            var responseRate = total > 0 ? (double)countResponseOK / total : 0;
-            var processRate = total > 0 ? (double)countProcessOK / total : 0;
-            var satisfactionRate = total > 0 ? totalRating / (5 * total) : 0;
-
             return new SlaSummaryDto
             {
-                ResponseRate = Math.Round(responseRate, 3),
-                ProcessRate = Math.Round(processRate, 3),
-                SatisfactionRate = Math.Round(satisfactionRate, 3)
+                ResponseRate = Math.Round((double)countResponseOK / total, 3),
+                ProcessRate = Math.Round((double)countProcessOK / total, 3),
+                SatisfactionRate = Math.Round(totalRating / (5 * total), 3)
             };
-        }
-
-        // 🟫 6. SLA theo kỳ (tháng / quý / năm)
-        public async Task<SlaSummaryDto> GetSlaSummaryByPeriodAsync(string period)
-        {
-            DateTime now = DateTime.UtcNow;
-            DateTime startDate;
-            DateTime endDate = now;
-
-            // 🔸 Xác định khoảng thời gian theo period
-            switch (period.ToLower())
-            {
-                case "month":
-                    startDate = new DateTime(now.Year, now.Month, 1);
-                    break;
-                case "quarter":
-                    int quarter = (now.Month - 1) / 3 + 1;
-                    int firstMonthOfQuarter = (quarter - 1) * 3 + 1;
-                    startDate = new DateTime(now.Year, firstMonthOfQuarter, 1);
-                    break;
-                case "year":
-                    startDate = new DateTime(now.Year, 1, 1);
-                    break;
-                default:
-                    throw new ArgumentException("Invalid period. Use month, quarter, or year.");
-            }
-
-            var filter = new DashboardFilterDto
-            {
-                StartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc),
-                EndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc)
-            };
-
-            // ⚙️ Gọi lại hàm SLA tổng quát
-            return await GetSlaSummaryAsync(filter);
         }
     }
 }

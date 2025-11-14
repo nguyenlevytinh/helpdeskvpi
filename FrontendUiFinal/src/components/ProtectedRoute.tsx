@@ -8,12 +8,20 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ page, children }: ProtectedRouteProps) => {
-  const { user } = useAuth(); // Lấy user từ AuthContext
+  const { user, loadingUser } = useAuth();
 
-  if (!user) return <Navigate to="/login" />; // Nếu chưa đăng nhập, chuyển hướng đến trang login
+  if (loadingUser) {
+    return <div>Loading...</div>; // hoặc spinner
+  }
 
-  const allowed = Permissions.pages[page]?.includes(user.role); // Kiểm tra quyền truy cập
-  if (!allowed) return <Navigate to="/403" />; // Nếu không có quyền, chuyển hướng đến trang 403
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
-  return <>{children}</>; // Nếu có quyền, hiển thị nội dung
+  const allowed = Permissions.pages[page]?.includes(user.role);
+  if (!allowed) {
+    return <Navigate to="/403" />;
+  }
+
+  return <>{children}</>;
 };

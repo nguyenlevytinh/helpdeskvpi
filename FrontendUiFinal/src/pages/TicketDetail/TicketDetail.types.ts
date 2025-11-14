@@ -14,6 +14,7 @@ export interface TicketDetailDto {
   assignedTo?: string;
   attachments: string[];
   agentNote?: string;
+  userRating?: number;
 }
 
 export interface CommentDto {
@@ -21,5 +22,6 @@ export interface CommentDto {
   content: string;
   createdBy: string;
   createdAt: string;
+  createdByFullName: string;
   attachments: { id: number; base64: string }[];
 }

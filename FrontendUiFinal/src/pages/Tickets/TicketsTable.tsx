@@ -3,9 +3,7 @@ import { Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useNavigate } from "react-router-dom";
 import { TicketStatusColorMap } from "../../constants/ticketStatus";
-import {
-  TicketPriorityColorMap,
-} from "../../constants/priorityColor";
+import { TicketPriorityColorMap } from "../../constants/priorityColor";
 
 export interface TicketListDto {
   id: number;
@@ -96,8 +94,9 @@ const TicketsTable: React.FC<Props> = ({
       align: "center",
       render: (priority: string) => {
         const colors =
-          TicketPriorityColorMap[priority as keyof typeof TicketPriorityColorMap] ||
-          { bg: "#F3F4F6", text: "#111827" };
+          TicketPriorityColorMap[
+            priority as keyof typeof TicketPriorityColorMap
+          ] || { bg: "#F3F4F6", text: "#111827" };
 
         return (
           <Tag
@@ -136,10 +135,11 @@ const TicketsTable: React.FC<Props> = ({
     <Table<TicketListDto>
       rowKey="id"
       columns={columns}
-      dataSource={[...data].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )}
+      dataSource={data}
       loading={loading}
+      scroll={{
+        y: 300, // Chiều cao vùng scroll (đã giảm cho vừa top bar)
+      }}
       pagination={{
         current: pageIndex,
         pageSize,
@@ -147,6 +147,7 @@ const TicketsTable: React.FC<Props> = ({
         onChange: onPageChange,
         showSizeChanger: true,
         size: "small",
+        position: ["bottomCenter"], // Cố định footer
       }}
       onRow={(record) => ({
         onClick: () => navigate(`/tickets/${record.id}`),
@@ -154,6 +155,7 @@ const TicketsTable: React.FC<Props> = ({
       size="small"
       bordered
       className="ticket-table"
+      style={{ maxHeight: "500px" }} // toàn khung bảng cố định
     />
   );
 };

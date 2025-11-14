@@ -10,7 +10,7 @@ const TicketsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string | undefined>();
-  const [difficulty, setDifficulty] = useState<string | undefined>();
+  const [priority, setPriority] = useState<string | undefined>();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -21,7 +21,7 @@ const TicketsPage: React.FC = () => {
       const params: any = {
         Title: search || undefined,
         Status: status || undefined,
-        Difficulty: difficulty || undefined,
+        Priority: priority || undefined,
         PageIndex: pageIndex,
         PageSize: pageSize,
       };
@@ -51,7 +51,7 @@ const TicketsPage: React.FC = () => {
   const handleReset = () => {
     setSearch("");
     setStatus(undefined);
-    setDifficulty(undefined);
+    setPriority(undefined);
     setPageIndex(1);
     setTimeout(() => {
     fetchTickets();
@@ -63,10 +63,10 @@ const TicketsPage: React.FC = () => {
       <TicketsFilter
         search={search}
         status={status}
-        difficulty={difficulty}
+        priority={priority}
         onSearchChange={setSearch}
         onStatusChange={setStatus}
-        onDifficultyChange={setDifficulty}
+        onPriorityChange={setPriority}
         onSearchClick={handleSearch}
         onReset={handleReset}
       />

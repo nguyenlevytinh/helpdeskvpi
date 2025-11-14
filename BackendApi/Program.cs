@@ -20,6 +20,8 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddSingleton<JwtHelper>();
+builder.Services.AddHostedService<AutoRatingService>();
+
 
 builder.Services.AddCors(options =>
 {

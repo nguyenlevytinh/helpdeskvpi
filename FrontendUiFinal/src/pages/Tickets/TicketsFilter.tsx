@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { TicketStatus } from "../../constants/ticketStatus";
 import { TicketPriority } from "../../constants/priorityColor";
 
-const ticketStatusOptions = Object.entries(TicketStatus).map(([value, label]) => ({
-  value,
+const ticketStatusOptions = Object.entries(TicketStatus).map(([_, label]) => ({
+  value: label,     // ✔ gửi tiếng Việt
   label,
 }));
 
@@ -41,27 +41,35 @@ const TicketsFilter: React.FC<Props> = ({
           prefix={<SearchOutlined />}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSearchClick();
+            }
+          }}
           style={{ width: 200, height: 31, fontSize: 10 }}
         />
+
         <Select
           placeholder="Trạng thái"
           options={ticketStatusOptions}
           allowClear
           value={status}
-          onChange={(v) => onStatusChange(v)}
+          onChange={onStatusChange}
           style={{ width: 140, fontSize: 10 }}
         />
+
         <Select
           placeholder="Mức độ ưu tiên"
           allowClear
           value={priority}
-          onChange={(v) => onPriorityChange(v)}
+          onChange={onPriorityChange}
           style={{ width: 120, fontSize: 10 }}
-          options={Object.entries(TicketPriority).map(([value, label]) => ({
-            value,
+          options={Object.entries(TicketPriority).map(([_, label]) => ({
+            value: label,   // ✔ gửi tiếng Việt
             label,
           }))}
         />
+
         <Button
           type="primary"
           icon={<SearchOutlined />}
@@ -70,6 +78,7 @@ const TicketsFilter: React.FC<Props> = ({
         >
           Tìm kiếm
         </Button>
+
         <Button icon={<ReloadOutlined />} size="small" onClick={onReset}>
           Xóa bộ lọc
         </Button>
@@ -81,7 +90,7 @@ const TicketsFilter: React.FC<Props> = ({
         onClick={() => navigate("/tickets/create")}
         size="large"
       >
-        <span style={{fontWeight: "bold", fontSize: 13}}>Tạo yêu cầu mới</span>
+        <span style={{ fontWeight: "bold", fontSize: 13 }}>Tạo yêu cầu mới</span>
       </Button>
     </div>
   );

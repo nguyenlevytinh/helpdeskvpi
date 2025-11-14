@@ -1,6 +1,6 @@
 export const Permissions = {
   pages: {
-    dashboard: ["admin", "helpdesk"],
+    dashboard: ["admin", "helpdesk", "user"],
     tickets: ["admin", "helpdesk", "user"],
   },
   components: {
@@ -16,7 +16,7 @@ export const Permissions = {
     rejectTicket: ["admin"],
   },
   menu: {
-    dashboard: ["admin", "helpdesk"],
+    dashboard: ["admin", "helpdesk", "user"],
     tickets: ["admin", "helpdesk", "user"],
     departments: ["admin"],
     reports: ["admin"],

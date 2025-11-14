@@ -17,10 +17,13 @@ namespace BackendApi.Services
         // 🟢 Thêm comment mới
         public async Task<bool> AddCommentAsync(CommentCreateDto dto, string createdByEmail)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == createdByEmail);
-            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == dto.TicketId);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == createdByEmail);
 
-            if (user == null || ticket == null) return false;
+            if (user == null) return false;
+
+            var ticketExists = await _context.Tickets.AnyAsync(t => t.Id == dto.TicketId);
+            if (!ticketExists) return false;
 
             var comment = new Comment
             {
@@ -33,8 +36,8 @@ namespace BackendApi.Services
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            // attachments
-            if (dto.AttachmentsBase64 != null && dto.AttachmentsBase64.Any())
+            // 🟡 Lưu attachments
+            if (dto.AttachmentsBase64 != null)
             {
                 foreach (var base64 in dto.AttachmentsBase64)
                 {
@@ -50,35 +53,32 @@ namespace BackendApi.Services
             return true;
         }
 
-        // 🟡 Danh sách comment của 1 ticket
+        // 🟡 Lấy danh sách comment theo ticket
         public async Task<List<CommentListDto>> GetCommentsByTicketAsync(int ticketId)
         {
             var comments = await _context.Comments
                 .Where(c => c.TicketId == ticketId)
-                .Include(c => c.CreatedByUser)
+                .Include(c => c.CreatedByUser)     // JOIN User
+                .Include(c => c.Attachments)       // JOIN CommentAttachments
                 .OrderBy(c => c.CreatedAt)
-                .ToListAsync();
-
-            var result = new List<CommentListDto>();
-
-            foreach (var c in comments)
-            {
-                var attachments = await _context.CommentAttachments
-                    .Where(a => a.CommentId == c.Id)
-                    .Select(a => a.Base64)
-                    .ToListAsync();
-
-                result.Add(new CommentListDto
+                .Select(c => new CommentListDto
                 {
                     Id = c.Id,
                     Content = c.Content,
-                    CreatedBy = c.CreatedByUser?.Email ?? "Unknown",
                     CreatedAt = c.CreatedAt,
-                    Attachments = attachments
-                });
-            }
+                    CreatedBy = c.CreatedByUser.Email,
+                    CreatedByFullName = c.CreatedByUser.FullName,
 
-            return result;
+                    Attachments = c.Attachments
+                        .Select(a => new CommentAttachmentDto
+                        {
+                            Id = a.Id,
+                            Base64 = a.Base64
+                        }).ToList()
+                })
+                .ToListAsync();
+
+            return comments;
         }
     }
 }

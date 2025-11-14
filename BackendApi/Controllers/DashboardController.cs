@@ -2,6 +2,7 @@ using BackendApi.Dtos.Dashboard;
 using BackendApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BackendApi.Controllers
 {
@@ -17,40 +18,62 @@ namespace BackendApi.Controllers
             _dashboardService = dashboardService;
         }
 
+        // Lấy userId và role từ JWT
+        private (int userId, string role) GetUserInfo()
+        {
+            var userId = int.Parse(User.FindFirstValue("id"));
+            var role = User.FindFirstValue(ClaimTypes.Role) 
+                       ?? User.FindFirstValue("role") 
+                       ?? "User";
+
+            return (userId, role);
+        }
+
+        // ---------------------------------------------------------------------------------------
         [HttpGet("TicketCountByStatus")]
         public async Task<IActionResult> GetTicketCountByStatus([FromQuery] DashboardFilterDto filter)
         {
-            var data = await _dashboardService.GetTicketCountByStatusAsync(filter);
+            var (userId, role) = GetUserInfo();
+            var data = await _dashboardService.GetTicketCountByStatusAsync(filter, userId, role);
             return Ok(data);
         }
 
+        // ---------------------------------------------------------------------------------------
         [HttpGet("TicketByMonth")]
         public async Task<IActionResult> GetTicketByMonth([FromQuery] DashboardFilterDto filter)
         {
-            var data = await _dashboardService.GetTicketByMonthAsync(filter);
+            var (userId, role) = GetUserInfo();
+            var data = await _dashboardService.GetTicketByMonthAsync(filter, userId, role);
             return Ok(data);
         }
 
+        // ---------------------------------------------------------------------------------------
         [HttpGet("TicketByCategory")]
         public async Task<IActionResult> GetTicketByCategory([FromQuery] DashboardFilterDto filter)
         {
-            var data = await _dashboardService.GetTicketByCategoryAsync(filter);
+            var (userId, role) = GetUserInfo();
+            var data = await _dashboardService.GetTicketByCategoryAsync(filter, userId, role);
             return Ok(data);
         }
 
+        // ---------------------------------------------------------------------------------------
         [HttpGet("TicketList")]
         public async Task<IActionResult> GetFilteredTickets([FromQuery] DashboardFilterDto filter)
         {
-            var data = await _dashboardService.GetFilteredTicketsAsync(filter);
+            var (userId, role) = GetUserInfo();
+            var data = await _dashboardService.GetFilteredTicketsAsync(filter, userId, role);
             return Ok(data);
         }
 
+        // ---------------------------------------------------------------------------------------
         [HttpGet("SLA")]
-        public async Task<IActionResult> GetSlaSummary([FromQuery] string period = "month")
+        public async Task<IActionResult> GetSlaSummary(
+            [FromQuery] DashboardFilterDto filter,
+            [FromQuery] string period = "month")
         {
-            var result = await _dashboardService.GetSlaSummaryByPeriodAsync(period);
-            return Ok(result);
+            var (userId, role) = GetUserInfo();
+            var data = await _dashboardService.GetSlaSummaryAsync(filter, userId, role);
+            return Ok(data);
         }
-
     }
 }
