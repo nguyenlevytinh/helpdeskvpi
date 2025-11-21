@@ -55,7 +55,7 @@ const renderCustomizedLabel = (props: any) => {
       fontSize={12}
       fontWeight={500}
     >
-      {`${percentage}%`}
+      {`${percentage.toFixed(1)}%`}
     </text>
   );
 };

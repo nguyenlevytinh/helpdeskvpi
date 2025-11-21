@@ -142,3 +142,8 @@ D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.pdb
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.genruntimeconfig.cache
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\ref\BackendApi.dll
 D:\HelpdeskVpi\BackendApi\obj\Debug\net8.0\BackendApi.sourcelink.json
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\web.config
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\appsettings.Development.json
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\appsettings.json
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\BackendApi.deps.json
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\BackendApi.runtimeconfig.json

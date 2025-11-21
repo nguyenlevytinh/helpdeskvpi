@@ -92,15 +92,12 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Enable Swagger UI khi chạy app
-if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
-{
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Backend API v1");
         c.RoutePrefix = string.Empty; // Truy cập ở http://localhost:5000/
     });
-}
 
 app.UseCors("AllowAll");
 app.UseAuthentication();
