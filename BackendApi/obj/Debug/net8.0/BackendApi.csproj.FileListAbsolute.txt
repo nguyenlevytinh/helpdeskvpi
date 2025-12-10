@@ -147,3 +147,4 @@ D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\appsettings.Development.json
 D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\appsettings.json
 D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\BackendApi.deps.json
 D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\publish\BackendApi.runtimeconfig.json
+D:\HelpdeskVpi\BackendApi\bin\Debug\net8.0\appsettings.Production.json

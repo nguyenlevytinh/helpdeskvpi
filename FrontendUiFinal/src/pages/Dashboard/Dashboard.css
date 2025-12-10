@@ -1,13 +1,13 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .dashboard-filters {
-  background: #fff;
-  padding: 12px;
-  border: 1px solid #f0f0f0;
+  background: transparent;
+  padding: 0px;
+  border: 0px solid #f0f0f0;
 }
 
 .dashboard-loading {
@@ -15,4 +15,51 @@
   justify-content: center;
   align-items: center;
   height: 300px;
+}
+/* Tăng opacity và đổi màu placeholder cho Select */
+.dashboard-filters .ant-select-selection-placeholder {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+/* Tăng opacity và đổi màu placeholder cho DatePicker */
+.dashboard-filters .ant-picker-input > input::placeholder {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 11px;
+}
+.dashboard-filters .ant-card-body {
+  padding: 0px !important;
+}
+
+.ant-card-head {
+  height: 25px !important;
+  line-height: 25px !important;
+  background: linear-gradient(90deg, #b44f26 0%, #f9a45c 100%) !important;
+  min-height: 25px !important;
+  padding: 0 24px !important;
+  color: #fff !important;
+  font-size: 13px !important;
+}
+
+.ant-card-body {
+  padding: 5px 20px 5px 10px !important;
+}
+
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
+  margin: 2px 0px 0px 0px; 
+  font-size: small;
+}
+
+.dashboard-ticket-table .ant-table-thead > tr > th,
+.dashboard-ticket-table .ant-table-tbody > tr > td {
+  padding: 0px 4px;    /* chỉnh padding dọc/ngang */
+  line-height: 1;    /* giúp row thấp hơn */
+}
+
+.dashboard-ticket-table .ant-table-thead > tr > th {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.dashboard-ticket-table .ant-table-tbody > tr {
+  height: 20px;        /* ép chiều cao mỗi dòng */
 }

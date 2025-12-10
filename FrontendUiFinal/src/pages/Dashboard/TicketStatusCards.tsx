@@ -50,23 +50,25 @@ const TicketStatusCards: React.FC<Props> = ({ data }) => {
               hoverable
               style={{
                 borderLeft: `6px solid ${colors.bg}`,
-                textAlign: "center",
                 backgroundColor: "#fff",
                 borderRadius: "10px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
               }}
-              bodyStyle={{ padding: "12px 8px" }}
+              bodyStyle={{ 
+                padding: "12px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
             >
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "center",
                   alignItems: "center",
                   gap: 6,
-                  color: colors.text,
+                  color: colors.bg,
                   fontWeight: 500,
                   fontSize: "12px",
-                  marginBottom: "4px",
                 }}
               >
                 {icon}

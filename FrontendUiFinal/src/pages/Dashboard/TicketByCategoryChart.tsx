@@ -12,7 +12,7 @@ interface Props {
   data: { category: string; count: number; percentage: number }[];
 }
 
-const COLORS = ["#27AE60", "#F5B041", "#E74C3C", "#2980B9", "#8c8c8c"];
+const COLORS = ["#ffa559", "#e67e2d", "#8066e7", "#34308f", "#8c8c8c"];
 
 // Tooltip tuỳ chỉnh
 const CustomTooltip = ({ active, payload }: any) => {
@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload }: any) => {
       >
         <div><b>Danh mục:</b> {d.category}</div>
         <div><b>Số lượng:</b> {d.count}</div>
-        <div><b>Tỷ lệ:</b> {d.percentage}%</div>
+        <div><b>Tỷ lệ:</b> {d.percentage.toFixed(1)}%</div>
       </div>
     );
   }
@@ -61,37 +61,36 @@ const renderCustomizedLabel = (props: any) => {
 };
 
 const TicketByCategoryChart: React.FC<Props> = ({ data }) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <PieChart>
-      <Pie
-        data={data}
-        dataKey="count"
-        nameKey="category"
-        cx="50%"
-        cy="50%"
-        innerRadius={40}
-        outerRadius={90}
-        labelLine={false}
-        label={renderCustomizedLabel}
-      >
-        {data.map((_, i) => (
-          <Cell key={i} fill={COLORS[i % COLORS.length]} />
-        ))}
-      </Pie>
-
-      {/* Tooltip chi tiết */}
-      <Tooltip content={<CustomTooltip />} />
-
-      {/* Legend ở dưới */}
-      <Legend
-        layout="horizontal"
-        verticalAlign="bottom"
-        align="center"
-        iconType="circle"
-        iconSize={10}
-      />
-    </PieChart>
-  </ResponsiveContainer>
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div style={{ flex: 1  }}>
+      <ResponsiveContainer width="100%" height={150}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="category"
+            cx="50%"
+            cy="50%"
+            outerRadius={75}
+            labelLine={false}
+            label={renderCustomizedLabel}
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend
+            layout="vertical"
+            verticalAlign="middle"
+            align="right"
+            iconType="circle"
+            iconSize={10}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
 );
 
 export default TicketByCategoryChart;

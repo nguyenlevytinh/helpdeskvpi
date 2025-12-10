@@ -56,7 +56,7 @@ const DashboardPage: React.FC = () => {
       ) : (
         <>
           <TicketStatusCards data={statusData} />
-          <Row gutter={12} style={{ marginTop: 12 }}>
+          <Row gutter={12} style={{ marginTop: 0 }}>
             <Col span={14}>
               <Card title="Tickets theo tháng">
                 <TicketByMonthChart data={monthData} />

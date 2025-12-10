@@ -28,10 +28,10 @@ const TicketByMonthChart: React.FC<Props> = ({ data }) => {
   const fullData = buildFullMonthData(data);
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={fullData}>
+    <ResponsiveContainer width="100%" height={150}>
+      <BarChart data={fullData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
         <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-        <YAxis tick={{ fontSize: 10 }} domain={[10, 250]} />
+        <YAxis tick={{ fontSize: 10 }} domain={[10, 250]} width={40} />
         <Tooltip />
         <Bar dataKey="count" fill="#1677ff" radius={[4, 4, 0, 0]} />
       </BarChart>

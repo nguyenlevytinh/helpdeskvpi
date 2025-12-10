@@ -6,7 +6,7 @@ import { TicketStatus } from "../../constants/ticketStatus";
 import { TicketPriority } from "../../constants/priorityColor";
 
 const ticketStatusOptions = Object.entries(TicketStatus).map(([_, label]) => ({
-  value: label,     // ✔ gửi tiếng Việt
+  value: label,     
   label,
 }));
 
@@ -34,64 +34,70 @@ const TicketsFilter: React.FC<Props> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="ticket-filters">
-      <Space wrap>
-        <Input
-          placeholder="Tìm theo tiêu đề..."
-          prefix={<SearchOutlined />}
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onSearchClick();
-            }
-          }}
-          style={{ width: 200, height: 31, fontSize: 10 }}
-        />
-
-        <Select
-          placeholder="Trạng thái"
-          options={ticketStatusOptions}
-          allowClear
-          value={status}
-          onChange={onStatusChange}
-          style={{ width: 140, fontSize: 10 }}
-        />
-
-        <Select
-          placeholder="Mức độ ưu tiên"
-          allowClear
-          value={priority}
-          onChange={onPriorityChange}
-          style={{ width: 120, fontSize: 10 }}
-          options={Object.entries(TicketPriority).map(([_, label]) => ({
-            value: label,   // ✔ gửi tiếng Việt
-            label,
-          }))}
-        />
-
+    <div className="ticket-filters-wrapper">
+      <div className="ticket-filters-header">
         <Button
           type="primary"
-          icon={<SearchOutlined />}
-          size="small"
-          onClick={onSearchClick}
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/tickets/create")}
+          size="large"
+          style={{color: "#7a7c7e"}}
         >
-          Tìm kiếm
+          <span style={{ fontWeight: "bold", fontSize: 13, color: "#7a7c7e" }}>Tạo yêu cầu mới</span>
         </Button>
+      </div>
 
-        <Button icon={<ReloadOutlined />} size="small" onClick={onReset}>
-          Xóa bộ lọc
-        </Button>
-      </Space>
+      <div className="ticket-filters">
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%' }}>
+          <Input
+            placeholder="Tìm theo tiêu đề..."
+            prefix={<SearchOutlined />}
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearchClick();
+              }
+            }}
+            style={{ flex: 1, height: 31, fontSize: 10, borderRadius: 6 }}
+          />
 
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => navigate("/tickets/create")}
-        size="large"
-      >
-        <span style={{ fontWeight: "bold", fontSize: 13 }}>Tạo yêu cầu mới</span>
-      </Button>
+          <Select
+            placeholder="Trạng thái"
+            options={ticketStatusOptions}
+            allowClear
+            value={status}
+            onChange={onStatusChange}
+            style={{ width: 200, fontSize: 10, borderRadius: 14 }}
+          />
+
+          <Select
+            placeholder="Mức độ ưu tiên"
+            allowClear
+            value={priority}
+            onChange={onPriorityChange}
+            style={{ width: 200, fontSize: 10, borderRadius: 14 }}
+            options={Object.entries(TicketPriority).map(([_, label]) => ({
+              value: label,
+              label,
+            }))}
+          />
+
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            size="small"
+            onClick={onSearchClick}
+            style={{width:100, borderRadius: 6, backgroundColor: "#fff", color: "#686e77"}}
+          >
+            Tìm kiếm
+          </Button>
+
+          <Button icon={<ReloadOutlined />} size="small" onClick={onReset}>
+            Xóa bộ lọc
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

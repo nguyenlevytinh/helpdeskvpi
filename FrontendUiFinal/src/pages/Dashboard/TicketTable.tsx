@@ -53,7 +53,7 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
       align: "center" as const,
       width: 60,
       render: (id: number) => (
-        <span style={{ fontSize: 10, fontWeight: 500 }}>TK{id}</span>
+        <span style={{ fontSize: 9, fontWeight: 500, padding: "2px 0" }}>TK{id}</span>
       ),
     },
     {
@@ -61,7 +61,7 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
       dataIndex: "title",
       align: "center" as const,
       render: (text: string) => (
-        <span style={{ fontSize: 10 }}>
+        <span style={{ fontSize: 9, padding: "2px 0" }}>
           {text || <i style={{ color: "#9ca3af" }}>Không có</i>}
         </span>
       ),
@@ -82,11 +82,11 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
               backgroundColor: colors.bg,
               color: colors.text,
               border: "none",
-              borderRadius: "8px",
-              padding: "1px 8px",
+              borderRadius: "10px",
+              padding: "0px 6px",
               fontWeight: 500,
-              fontSize: "10px",
-              minWidth: 70,
+              fontSize: "9px",
+              width: 80, // Cố định width thay vì minWidth
               textAlign: "center",
               display: "inline-block",
             }}
@@ -103,7 +103,7 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
       render: (text: string) => {
         const d = new Date(text);
         return (
-          <span style={{ fontSize: 10 }}>
+          <span style={{ fontSize: 9, padding: "2px 0" }}>
             {d.toLocaleString("vi-VN", {
               hour12: false,
               hour: "2-digit",
@@ -120,6 +120,7 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
 
   return (
     <Table
+      className="dashboard-ticket-table"
       size="small"
       bordered
       columns={columns}
@@ -127,8 +128,12 @@ const TicketTable: React.FC<Props> = ({ filters }) => {
       loading={loading}
       rowKey="id"
       pagination={{ pageSize: 5 }}
-      style={{ fontSize: 10 }}
-
+      style={{
+        fontSize: 10,
+        // Nếu muốn ép padding bằng CSS variable (tùy chọn):
+        // "--ant-table-cell-padding-block": "4px",
+        // "--ant-table-cell-padding-inline": "8px",
+      } as React.CSSProperties}
       onRow={(record) => ({
         onClick: () => navigate(`/tickets/${record.id}`),
         style: { cursor: "pointer" },

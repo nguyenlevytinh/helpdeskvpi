@@ -4,15 +4,14 @@ import { BellOutlined } from "@ant-design/icons";
 import { useAuth } from "../../context/AuthContext"; // Import useAuth
 import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import "./Topbar.css";
-
+import logoImage from "../../assets/VPlogo.png";
 const { Header } = Layout;
-
 interface TopbarProps {
   userName?: string;
   logoPath?: string;
 }
 
-const Topbar: React.FC<TopbarProps> = ({ userName = "User", logoPath = "/vp_logo.png" }) => {
+const Topbar: React.FC<TopbarProps> = ({ userName = "User", logoPath = logoImage }) => {
   const { logout } = useAuth(); // Lấy hàm logout từ AuthContext
   const navigate = useNavigate(); // Hook để chuyển hướng
   const location = useLocation(); // Hook để lấy thông tin route hiện tại
@@ -36,7 +35,7 @@ const Topbar: React.FC<TopbarProps> = ({ userName = "User", logoPath = "/vp_logo
   // Ánh xạ route sang tiêu đề
   const pageTitles: { [key: string]: string } = {
     "/dashboard": "DASHBOARD",
-    "/tickets": "DANH SÁCH TICKET",
+    "/tickets": "QUẢN LÝ TICKETS",
     "/tickets/create": "TẠO MỚI TICKET",
   };
 

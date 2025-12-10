@@ -1,9 +1,9 @@
 import React from "react";
 import { Layout } from "antd";
 import Topbar from "./Topbar";
-import Sidebar from "./Sidebar";
+import Sidebar from "../layout/Sidebar";
 import { Outlet } from "react-router-dom";
-
+import layoutBg from "../../assets/layout-bg.png";
 const { Content } = Layout;
 
 const AppLayout: React.FC = () => {
@@ -14,7 +14,7 @@ const AppLayout: React.FC = () => {
         <Sidebar />
         <Content
           style={{
-            background: "#fafafa",
+            background: `url(${layoutBg}) no-repeat center/cover`,
             padding: 16,
             fontSize: 10,
             overflowY: "auto",

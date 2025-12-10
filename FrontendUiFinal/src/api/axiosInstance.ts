@@ -1,7 +1,7 @@
 import axios from "axios";
-
+const BASE_URL = import.meta.env.PUBLIC_API_URL;
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5017", 
+  baseURL: BASE_URL, 
   headers: { "Content-Type": "application/json" },
 });
 
@@ -21,7 +21,7 @@ axiosInstance.interceptors.response.use(
             accessToken: string;
           }
 
-          const res = await axios.post<RefreshResponse>("http://localhost:5017/api/Auth/Refresh", {
+          const res = await axios.post<RefreshResponse>(`${BASE_URL}/api/Auth/Refresh`, {
             refreshToken,
           });
           const newAccessToken = res.data.accessToken;

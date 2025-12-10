@@ -67,6 +67,7 @@ const DashboardFilters: React.FC<Props> = ({ onSearch, onRefresh }) => {
           <Button
             type="primary"
             icon={<SearchOutlined />}
+            style={{ background: "#cad5e0" }}
             size="small"
             onClick={handleSearch}
           >

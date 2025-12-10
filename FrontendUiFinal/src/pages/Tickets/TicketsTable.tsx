@@ -138,7 +138,7 @@ const TicketsTable: React.FC<Props> = ({
       dataSource={data}
       loading={loading}
       scroll={{
-        y: 300, // Chiều cao vùng scroll (đã giảm cho vừa top bar)
+        y: "calc(100vh - 350px)", // Tính động theo viewport
       }}
       pagination={{
         current: pageIndex,
@@ -147,7 +147,7 @@ const TicketsTable: React.FC<Props> = ({
         onChange: onPageChange,
         showSizeChanger: true,
         size: "small",
-        position: ["bottomCenter"], // Cố định footer
+        position: ["bottomCenter"],
       }}
       onRow={(record) => ({
         onClick: () => navigate(`/tickets/${record.id}`),
@@ -155,7 +155,6 @@ const TicketsTable: React.FC<Props> = ({
       size="small"
       bordered
       className="ticket-table"
-      style={{ maxHeight: "500px" }} // toàn khung bảng cố định
     />
   );
 };

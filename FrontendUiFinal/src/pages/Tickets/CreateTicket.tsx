@@ -80,10 +80,10 @@ const CreateTicketPage: React.FC = () => {
   return (
     <Card>
       <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ fontSize: 10 }}>
-        <Space direction="vertical" style={{ width: "100%" }}>
+        <Space direction="vertical" style={{ width: "100%" , gap: 4}}>
           
           {/* Tiêu đề + Priority */}
-          <Row gutter={[6, 0]}>
+          <Row gutter={[6, 0]} style={{ marginBottom: 0 }}>
             <Col span={12}>
               <Form.Item
                 label="Tiêu đề"
@@ -128,18 +128,31 @@ const CreateTicketPage: React.FC = () => {
             </Col>
           </Row>
 
+          
+
+          {/* Mô tả */}
+          <Form.Item
+            label="Mô tả chi tiết"
+            name="Description"
+            rules={[{ required: true, message: "Nhập mô tả" }]}
+          >
+            <TextArea rows={4} placeholder="Nhập chi tiết vấn đề..." />
+          </Form.Item>
+          
           {/* Checkbox tạo hộ */}
-          <Row gutter={[6, 0]}>
-            <Col span={3}>
-              <Checkbox checked={isProxy} onChange={(e) => setIsProxy(e.target.checked)}>
-                Tạo hộ
-              </Checkbox>
+          <Row gutter={[8, 0]} align="middle">
+            <Col flex="none">
+              <Checkbox 
+                checked={isProxy} 
+                onChange={(e) => setIsProxy(e.target.checked)}
+              />
             </Col>
 
-            <Col span={20}>
+            <Col flex="auto">
               <Form.Item
                 label="Email người được tạo hộ"
                 name="RequestedForEmail"
+                style={{ marginBottom: 0 }}
                 rules={
                   isProxy
                     ? [{ required: true, message: "Nhập email người được tạo hộ" }]
@@ -151,15 +164,6 @@ const CreateTicketPage: React.FC = () => {
             </Col>
           </Row>
 
-          {/* Mô tả */}
-          <Form.Item
-            label="Mô tả chi tiết"
-            name="Description"
-            rules={[{ required: true, message: "Nhập mô tả" }]}
-          >
-            <TextArea rows={4} placeholder="Nhập chi tiết vấn đề..." />
-          </Form.Item>
-
           {/* Upload ảnh */}
           <Form.Item label="Ảnh đính kèm (tối đa 5)">
             <Upload.Dragger
@@ -169,13 +173,17 @@ const CreateTicketPage: React.FC = () => {
               fileList={fileList}
               accept="image/*"
               multiple
-              style={{ padding: 20 }}
+              style={{ padding: 10 }}
             >
-              <p className="ant-upload-drag-icon">
+              <p className="ant-upload-drag-icon" style={{ margin: "8px 0" }}>
                 <UploadOutlined />
               </p>
-              <p className="ant-upload-text">Kéo thả ảnh hoặc nhấn để chọn</p>
-              <p className="ant-upload-hint">Tối đa 5 ảnh</p>
+              <p className="ant-upload-text" style={{ margin: "4px 0", fontSize: 12 }}>
+                Kéo thả ảnh hoặc nhấn để chọn
+              </p>
+              <p className="ant-upload-hint" style={{ margin: "4px 0", fontSize: 11 }}>
+                Tối đa 5 ảnh - Nhấn <b>Ctrl+V</b> để dán ảnh từ clipboard
+              </p>
             </Upload.Dragger>
 
             {/* Paste ảnh */}
@@ -203,13 +211,11 @@ const CreateTicketPage: React.FC = () => {
                 }
               }}
               style={{ marginTop: 10, fontSize: 12, color: "#888" }}
-            >
-              Nhấn <b>Ctrl+V</b> để dán ảnh từ clipboard
-            </div>
+            />
           </Form.Item>
 
           {/* Buttons */}
-          <Form.Item style={{ textAlign: "right" }}>
+          <Form.Item style={{ textAlign: "left" }}>
             <Space>
               <Popconfirm
                 title="Bạn có chắc chắn muốn hủy?"
@@ -217,10 +223,30 @@ const CreateTicketPage: React.FC = () => {
                 okText="Có"
                 cancelText="Không"
               >
-                <Button disabled={loading}>Hủy</Button>
+                <Button 
+                  disabled={loading}
+                  style={{
+                    backgroundColor: "#cbd5de",
+                    color: "#fff",
+                    border: "none",
+                    width: 100
+                  }}
+                >
+                  Hủy
+                </Button>
               </Popconfirm>
 
-              <Button type="primary" htmlType="submit" loading={loading}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={loading}
+                style={{
+                  backgroundColor: "#ffa559",
+                  color: "#fff",
+                  border: "none",
+                  width: 100
+                }}
+              >
                 Tạo Ticket
               </Button>
             </Space>

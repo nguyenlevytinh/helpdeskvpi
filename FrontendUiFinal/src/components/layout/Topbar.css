@@ -1,11 +1,11 @@
 .topbar {
-  background: #fff;
+  background: url(../../assets/topbar-bg.png) no-repeat center/cover !important;
   height: 50px;
   padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 0px solid #f0f0f0;
 }
 
 .topbar-left {
@@ -21,7 +21,7 @@
 .topbar-title {
   font-weight: 600;
   font-size: 12px;
-  color: #333;
+  color: #ffffff;
 }
 
 .topbar-right {

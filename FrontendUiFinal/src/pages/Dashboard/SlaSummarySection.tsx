@@ -40,52 +40,65 @@ const SlaSummarySection: React.FC = () => {
     <Card
       bordered
       style={{
-        width: "100%", // Để block tự co giãn theo không gian cột
+        width: "100%",
         textAlign: "center",
         fontSize: 11,
         borderRadius: 8,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        background: "linear-gradient(to bottom, #221f1f, #505761)",
+        color: "#fff",
       }}
     >
-      <div style={{ fontWeight: 600, marginBottom: 6 }}>{title}</div>
+      <div style={{ fontWeight: 600, marginBottom: 8, color: "#fff" }}>{title}</div>
       {data ? (
         <>
-          <div style={{ marginBottom: 8 }}>
-            <div>Phản hồi {Math.round(data.responseRate * 100)}%</div>
+          <div style={{ marginBottom: 15 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2, fontSize: 9 }}>
+              <span style={{ color: "#fff" }}>Phản hồi</span>
+              <span style={{ color: "#fff" }}>{Math.round(data.responseRate * 100)}%</span>
+            </div>
             <Progress
               percent={Math.round(data.responseRate * 100)}
               showInfo={false}
-              strokeColor="#3b82f6"
-              strokeWidth={8}
+              strokeColor="#73cefd"
+              trailColor="#fff"
+              strokeWidth={5}
             />
           </div>
-          <div style={{ marginBottom: 8 }}>
-            <div>Xử lý {Math.round(data.processRate * 100)}%</div>
+          <div style={{ marginBottom: 15 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2, fontSize: 9 }}>
+              <span style={{ color: "#fff" }}>Xử lý</span>
+              <span style={{ color: "#fff" }}>{Math.round(data.processRate * 100)}%</span>
+            </div>
             <Progress
               percent={Math.round(data.processRate * 100)}
               showInfo={false}
-              strokeColor="#059669"
-              strokeWidth={8}
+              strokeColor="#ffa559"
+              trailColor="#fff"
+              strokeWidth={5}
             />
           </div>
           <div>
-            <div>Hài lòng {Math.round(data.satisfactionRate * 100)}%</div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 9 }}>
+              <span style={{ color: "#fff" }}>Hài lòng</span>
+              <span style={{ color: "#fff" }}>{Math.round(data.satisfactionRate * 100)}%</span>
+            </div>
             <Progress
               percent={Math.round(data.satisfactionRate * 100)}
               showInfo={false}
-              strokeColor="#a855f7"
-              strokeWidth={8}
+              strokeColor="#63dc99"
+              trailColor="#fff"
+              strokeWidth={5}
             />
           </div>
         </>
       ) : (
-        <div>Đang tải...</div>
+        <div style={{ color: "#fff" }}>Đang tải...</div>
       )}
     </Card>
   );
 
   return (
-    <Row justify="space-between" gutter={[8, 8]} style={{ height: 280 }}>
+    <Row justify="space-between" gutter={[8, 8]} style={{ height: 220 }}>
       <Col span={8}>{renderBlock("THÁNG", monthSla)}</Col>
       <Col span={8}>{renderBlock("QUÝ", quarterSla)}</Col>
       <Col span={8}>{renderBlock("NĂM", yearSla)}</Col>

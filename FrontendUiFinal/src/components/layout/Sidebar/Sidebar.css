@@ -1,0 +1,34 @@
+/* Bắt buộc: loại bỏ nền trắng cứng của AntD Sider */
+.ant-layout-sider {
+  background: transparent !important;
+}
+
+/* Nếu AntD thêm dark mode vào Sider */
+.ant-layout-sider-dark {
+  background: transparent !important;
+}
+
+/* Menu không che nền */
+.ant-menu {
+  background: transparent !important;
+}
+
+.ant-layout-sider.custom-sider {
+  background: url(../../../assets/sidebar-bg.png) no-repeat center/cover !important;
+  pointer-events: none;
+}
+.ant-layout-sider.custom-sider * {
+  pointer-events: auto;   /* Cho phép menu click */
+}
+.custom-sider .ant-layout-sider-trigger {
+  display: none;
+}
+.sidebar-menu .ant-menu-item-selected {
+  background-color: #f17d32 !important; 
+  background-image: none !important;  
+  color: #fff !important;
+  border-radius: 8px;
+}
+
+
+

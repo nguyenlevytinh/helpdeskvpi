@@ -12,9 +12,9 @@ export const TicketStatusColorMap: Record<
   (typeof TicketStatus)[keyof typeof TicketStatus],
   { bg: string; text: string }
 > = {
-  [TicketStatus.Open]: { bg: "#FFF9DB", text: "#FF5722" }, // xám nhạt / chữ trắng
-  [TicketStatus.InProgress]: { bg: "#DBEAFE", text: "#1D4ED8" }, // xanh nhạt / xanh đậm
-  [TicketStatus.Resolved]: { bg: "#EDE9FE", text: "#5B21B6" }, // tím nhạt / tím đậm
-  [TicketStatus.Rejected]: { bg: "#FEE2E2", text: "#B91C1C" }, // đỏ nhạt / đỏ đậm
-  [TicketStatus.Completed]: { bg: "#DCFCE7", text: "#15803D" }, // xanh lá nhạt / xanh đậm
+  [TicketStatus.Open]: { bg: "#e67e2d", text: "#fff" }, 
+  [TicketStatus.InProgress]: { bg: "#ffa559", text: "#fff" },
+  [TicketStatus.Resolved]: { bg: "#73cefd", text: "#fff" },
+  [TicketStatus.Rejected]: { bg: "#ff9a95", text: "#fff" }, 
+  [TicketStatus.Completed]: { bg: "#63dc99", text: "#fff" }, 
 };

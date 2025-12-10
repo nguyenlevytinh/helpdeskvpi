@@ -11,8 +11,8 @@ export const TicketPriorityColorMap: Record<
   (typeof TicketPriority)[keyof typeof TicketPriority],
   { bg: string; text: string }
 > = {
-  [TicketPriority.Low]: { bg: "#DCFCE7", text: "#15803D" }, // xanh lá nhạt / xanh lá đậm
-  [TicketPriority.Medium]: { bg: "#DBEAFE", text: "#1D4ED8" }, // xanh dương nhạt / xanh dương đậm
-  [TicketPriority.High]: { bg: "#FEE2E2", text: "#B91C1C" }, // đỏ nhạt / đỏ đậm
-  [TicketPriority.Urgent]: { bg: "#B91C1C", text: "#FFFFFF" }, // nền đỏ đậm / chữ trắng
+  [TicketPriority.Low]: { bg: "#dbb5ee", text: "#fff" }, // xanh lá nhạt / xanh lá đậm
+  [TicketPriority.Medium]: { bg: "#b1a7f2", text: "#fff" }, // xanh dương nhạt / xanh dương đậm
+  [TicketPriority.High]: { bg: "#8066e7", text: "#fff" }, // đỏ nhạt / đỏ đậm
+  [TicketPriority.Urgent]: { bg: "#7e4ca5", text: "#fff" }, // nền đỏ đậm / chữ trắng
 };
